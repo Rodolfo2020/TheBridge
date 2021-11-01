@@ -54,12 +54,12 @@ public class BridgeKit extends FreeKit {
 
   @Override
   public void giveKitItems(Player player) {
-    player.getInventory().addItem(WeaponHelper.getUnBreakingSword(WeaponHelper.ResourceType.STONE, 10));
+    player.getInventory().addItem(new ItemStack(XMaterial.IRON_SWORD.parseMaterial()));
     player.getInventory().addItem(WeaponHelper.getEnchantedBow(Enchantment.ARROW_INFINITE, 10));
     player.getInventory().setItem(9, XMaterial.ARROW.parseItem());
     player.getInventory().addItem(WeaponHelper.getEnchanted(XMaterial.DIAMOND_PICKAXE.parseItem(), new Enchantment[]{
-        Enchantment.DURABILITY, Enchantment.DIG_SPEED}, new int[]{10, 2}));
-    player.getInventory().addItem(new ItemStack(XMaterial.GOLDEN_APPLE.parseMaterial(), 5));
+        Enchantment.DIG_SPEED}, new int[]{2}));
+    player.getInventory().addItem(new ItemStack(XMaterial.GOLDEN_APPLE.parseMaterial(), 8));
     VersionUtils.setMaxHealth(player, 20.0);
     player.setHealth(20.0);
     Arena arena = ArenaRegistry.getArena(player);

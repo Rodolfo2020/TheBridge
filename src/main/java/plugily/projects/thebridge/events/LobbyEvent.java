@@ -59,6 +59,9 @@ public class LobbyEvent implements Listener {
     if(arena == null || arena.getArenaState() == ArenaState.IN_GAME) {
       return;
     }
+    if (event.getCause().equals(EntityDamageEvent.DamageCause.VOID)) {
+        player.teleport(arena.getLobbyLocation());
+    }
     event.setCancelled(true);
     player.setFireTicks(0);
     player.setHealth(VersionUtils.getHealth(player));
@@ -88,4 +91,5 @@ public class LobbyEvent implements Listener {
     }
     event.setCancelled(true);
   }
+
 }
