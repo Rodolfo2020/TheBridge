@@ -1,4 +1,4 @@
-#It is forked from https://github.com/Plugily-Projects/TheBridge
+# It is forked from https://github.com/Plugily-Projects/TheBridge
 ![](https://images.plugily.xyz/banner/display.php?id=TheBridge)
 TheBridge - Defend your base and try to wipe out the others
 
