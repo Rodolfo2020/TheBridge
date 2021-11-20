@@ -65,32 +65,37 @@ public class ChatEvents implements Listener {
       }
       return;
     }
-    if(plugin.getConfigPreferences().getOption(ConfigPreferences.Option.CHAT_FORMAT_ENABLED)) {
-      String eventMessage = event.getMessage();
+
+    String eventMessage = event.getMessage();
+
+    boolean chatFormat = plugin.getConfigPreferences().getOption(ConfigPreferences.Option.CHAT_FORMAT_ENABLED);
+    if(chatFormat) {
+      eventMessage = event.getMessage();
       for(String regexChar : regexChars) {
         if(eventMessage.contains(regexChar)) {
           eventMessage = eventMessage.replaceAll(Pattern.quote(regexChar), "");
         }
       }
-      String message = formatChatPlaceholders(LanguageManager.getLanguageMessage("In-Game.Game-Chat-Format"), plugin.getUserManager().getUser(event.getPlayer()), eventMessage);
-      if(!plugin.getConfigPreferences().getOption(ConfigPreferences.Option.DISABLE_SEPARATE_CHAT)) {
-        event.setCancelled(true);
-        boolean dead = !arena.getPlayersLeft().contains(event.getPlayer());
-        for(Player player : arena.getPlayers()) {
-          if(dead && arena.getPlayersLeft().contains(player)) {
-            continue;
-          }
-          if(dead) {
-            String prefix = formatChatPlaceholders(LanguageManager.getLanguageMessage("In-Game.Game-Death-Format"), plugin.getUserManager().getUser(event.getPlayer()), null);
-            player.sendMessage(prefix + message);
-          } else {
-            player.sendMessage(message);
-          }
+    }
+
+    String message = chatFormat ? formatChatPlaceholders(LanguageManager.getLanguageMessage("In-Game.Game-Chat-Format"), plugin.getUserManager().getUser(event.getPlayer()), eventMessage) : ChatColor.GRAY + event.getPlayer().getName() + " » " + ChatColor.WHITE + event.getMessage();
+    if(!plugin.getConfigPreferences().getOption(ConfigPreferences.Option.DISABLE_SEPARATE_CHAT)) {
+      event.setCancelled(true);
+      boolean dead = !arena.getPlayersLeft().contains(event.getPlayer());
+      for(Player player : arena.getPlayers()) {
+        if(dead && arena.getPlayersLeft().contains(player)) {
+          continue;
         }
-        Bukkit.getConsoleSender().sendMessage(message);
-      } else {
-        event.setMessage(message);
+        if(dead) {
+          String prefix = chatFormat ? formatChatPlaceholders(LanguageManager.getLanguageMessage("In-Game.Game-Death-Format"), plugin.getUserManager().getUser(event.getPlayer()), null) : ChatColor.DARK_GRAY + event.getPlayer().getName() + " » " + ChatColor.WHITE + event.getMessage();
+          player.sendMessage(prefix + message);
+        } else {
+          player.sendMessage(message);
+        }
       }
+      Bukkit.getConsoleSender().sendMessage(message);
+    } else {
+      event.setMessage(message);
     }
   }
 
@@ -100,9 +105,11 @@ public class ChatEvents implements Listener {
     formatted = StringUtils.replace(formatted, "%player%", user.getPlayer().getName());
     formatted = StringUtils.replace(formatted, "%message%", ChatColor.stripColor(saidMessage));
     if(user.getArena().getBase(user.getPlayer()) == null) {
+      formatted = StringUtils.replace(formatted, "%color%", "&7");
       formatted = StringUtils.replace(formatted, "%base%", LanguageManager.getLanguageMessage("Scoreboard.Bases.Not-Inside"));
       formatted = StringUtils.replace(formatted, "%base_formatted%", LanguageManager.getLanguageMessage("Scoreboard.Bases.Not-Inside"));
     } else {
+      formatted = StringUtils.replace(formatted, "%color%", "&" + user.getArena().getBase(user.getPlayer()).getStringColor().getChar());
       formatted = StringUtils.replace(formatted, "%base%", user.getArena().getBase(user.getPlayer()).getColor());
       formatted = StringUtils.replace(formatted, "%base_formatted%", user.getArena().getBase(user.getPlayer()).getFormattedColor());
     }

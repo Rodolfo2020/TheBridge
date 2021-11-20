@@ -52,7 +52,6 @@ import plugily.projects.commonsbox.minecraft.compat.xseries.XSound;
 import plugily.projects.thebridge.ConfigPreferences;
 import plugily.projects.thebridge.Main;
 import plugily.projects.thebridge.api.StatsStorage;
-import plugily.projects.thebridge.api.events.game.TBGameStateChangeEvent;
 import plugily.projects.thebridge.arena.base.Base;
 import plugily.projects.thebridge.arena.options.ArenaOption;
 import plugily.projects.thebridge.handlers.ChatManager;
@@ -136,12 +135,12 @@ public class ArenaEvents implements Listener {
 
   public boolean canBuild(Arena arena, Player player, Location location) {
     if (!arena.getArenaBorder().isIn(player)) {
-      player.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Build-Break"));
+      chatManager.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Build-Break"), player);
       return false;
     }
     for (Base base : arena.getBases()) {
       if (base.getBaseCuboid().isIn(location)) {
-        player.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Build-Break"));
+        chatManager.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Build-Break"), player);
         return false;
       }
     }
@@ -156,7 +155,7 @@ public class ArenaEvents implements Listener {
       plugin.getUserManager().addStat(attacker, StatsStorage.StatisticType.KILLS);
       plugin.getUserManager().addExperience(attacker, 2);
       plugin.getUserManager().getUser(attacker).addStat(StatsStorage.StatisticType.LOCAL_KILLS, 1);
-      attacker.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Killed").replace("%VICTIM%", victim.getName()));
+      chatManager.sendMessage(plugin.getChatManager().colorMessage("In-Game.Messages.Killed").replace("%VICTIM%", victim.getName()), attacker);
       plugin.getChatManager().broadcast(arena, plugin.getChatManager().colorMessage("In-Game.Messages.Death").replace("%PLAYER%", victim.getName()).replace("%ATTACKER%", attacker.getName()));
     }
   }
@@ -223,7 +222,7 @@ public class ArenaEvents implements Listener {
     }
     if (arena.getBase(player).getPortalCuboid().isIn(player)) {
       cooldownPortal.put(player, System.currentTimeMillis());
-      player.sendMessage(chatManager.colorMessage("In-Game.Messages.Portal.Own", player));
+      if(!chatManager.colorMessage("In-Game.Messages.Portal.Own", player).isEmpty()) player.sendMessage(chatManager.colorMessage("In-Game.Messages.Portal.Own", player));
       //prevent players being stuck on portal location
       Bukkit.getScheduler().runTaskLater(plugin, () -> {
         if (player != null) {
@@ -239,9 +238,11 @@ public class ArenaEvents implements Listener {
       if (base.getPortalCuboid().isIn(player)) {
         if (base.getPoints() >= arena.getOption(ArenaOption.MODE_VALUE)) {
           cooldownPortal.put(player, System.currentTimeMillis());
-          player.sendMessage(chatManager.colorMessage("In-Game.Messages.Portal.Out", player));
+          chatManager.sendMessage(chatManager.colorMessage("In-Game.Messages.Portal.Out", player), player);
           return;
         }
+        XSound.ENTITY_FIREWORK_ROCKET_LAUNCH.play(player.getLocation(), 50, 1);
+
         cooldownPortal.put(player, System.currentTimeMillis());
         arena.resetRound();
         player.teleport(arena.getBase(player).getPlayerSpawnPoint());
@@ -403,7 +404,7 @@ public class ArenaEvents implements Listener {
       return;
     }
     DecimalFormat df = new DecimalFormat("##.##");
-    attacker.sendMessage(plugin.getChatManager().colorMessage("In-Game.Bow-Damage-Format").replace("%victim%", victim.getName()).replace("%hearts%", df.format(victim.getHealth() - e.getDamage())));
+    chatManager.sendMessage(plugin.getChatManager().colorMessage("In-Game.Bow-Damage-Format").replace("%victim%", victim.getName()).replace("%hearts%", df.format(victim.getHealth() - e.getDamage())), attacker);
   }
 
 
@@ -547,17 +548,6 @@ public class ArenaEvents implements Listener {
       if (e.getMessage().equalsIgnoreCase("/leave")) {
         player.performCommand("tb leave");
         e.setCancelled(true);
-      }
-    }
-  }
-
-  @EventHandler
-  public void onGameStateChange(TBGameStateChangeEvent event) {
-    ArenaState state = event.getArenaState();
-    Arena arena = event.getArena();
-    if (state == ArenaState.ENDING) {
-      for (Player p : event.getArena().getPlayers()) {
-        p.teleport(arena.getLobbyLocation());
       }
     }
   }

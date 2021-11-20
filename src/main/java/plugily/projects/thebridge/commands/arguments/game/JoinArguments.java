@@ -65,12 +65,12 @@ public class JoinArguments {
           if(args.length == 3) {
             if(!Utils.isInteger(args[2])) {
               sender.sendMessage(registry.getPlugin().getChatManager().getPrefix() + registry.getPlugin().getChatManager().colorMessage("Commands.Wrong-Usage")
-                  .replace("%correct%", "/tb join maxplayers <teamSize>"));
+                  .replace("%correct%", "/tb join maxplayers <max-players>"));
               return;
             }
             arenas.clear();
             for(Arena arena : ArenaRegistry.getArenas()) {
-              if(arena.getBases().get(0).getMaximumSize() == Integer.parseInt(args[2])) {
+              if(arena.getMaximumPlayers() == Integer.parseInt(args[2])) {
                 arenas.put(arena, arena.getPlayers().size());
                 arenaList.add(arena);
               }
@@ -98,7 +98,21 @@ public class JoinArguments {
 
           if(!orderedArenas.isEmpty()) {
             Arena arena = orderedArenas.keySet().stream().findFirst().get();
-            ArenaManager.joinAttempt((Player) sender, arena);
+
+            while(arena.getPlayers().size() >= arena.getMaximumPlayers()) {
+              if(orderedArenas.size() == 0) {
+                arena = null;
+                break;
+              }
+
+              orderedArenas.remove(arena);
+              arena = orderedArenas.keySet().stream().findFirst().get();
+            }
+
+            if (arena != null)
+              ArenaManager.joinAttempt((Player) sender, arena);
+            else
+              sender.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.No-Arena-Like-That"));
             return;
           }
           return;

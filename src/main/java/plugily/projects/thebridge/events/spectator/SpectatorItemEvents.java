@@ -106,7 +106,7 @@ public class SpectatorItemEvents implements Listener {
       cloneSkull.setItemMeta(meta);
       pane.addItem(new GuiItem(cloneSkull, e -> {
         e.setCancelled(true);
-        e.getWhoClicked().sendMessage(plugin.getChatManager().formatMessage(arena, chatManager.colorMessage("Commands.Admin-Commands.Teleported-To-Player"), arenaPlayer));
+        chatManager.sendMessage(plugin.getChatManager().formatMessage(arena, chatManager.colorMessage("Commands.Admin-Commands.Teleported-To-Player"), arenaPlayer), e.getWhoClicked());
         e.getWhoClicked().closeInventory();
         e.getWhoClicked().teleport(arenaPlayer);
       }));

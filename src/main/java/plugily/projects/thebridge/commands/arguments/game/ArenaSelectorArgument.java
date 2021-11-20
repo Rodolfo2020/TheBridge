@@ -65,7 +65,7 @@ public class ArenaSelectorArgument implements Listener {
       @Override
       public void execute(CommandSender sender, String[] args) {
         if(ArenaRegistry.getArenas().size() == 0) {
-          sender.sendMessage(chatManager.colorMessage("Validator.No-Instances-Created"));
+          chatManager.sendMessage(chatManager.colorMessage("Validator.No-Instances-Created"), sender);
           return;
         }
 
@@ -132,7 +132,7 @@ public class ArenaSelectorArgument implements Listener {
     if(arena != null) {
       ArenaManager.joinAttempt(player, arena);
     } else {
-      player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.No-Arena-Like-That"));
+      chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.No-Arena-Like-That"), player);
     }
   }
 

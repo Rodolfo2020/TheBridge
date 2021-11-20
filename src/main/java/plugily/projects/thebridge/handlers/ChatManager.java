@@ -22,6 +22,7 @@ package plugily.projects.thebridge.handlers;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import plugily.projects.commonsbox.minecraft.compat.ServerVersion;
 import plugily.projects.commonsbox.string.StringFormatUtils;
@@ -57,7 +58,7 @@ public class ChatManager {
   }
 
   public String colorRawMessage(String message) {
-    if(message == null) {
+    if(message == null || message.equals("")) {
       return "";
     }
 
@@ -74,6 +75,16 @@ public class ChatManager {
       returnString = PlaceholderAPI.setPlaceholders(player, returnString);
     }
     return colorRawMessage(returnString);
+  }
+
+  public void sendMessage(String message, Player player) {
+    if(message.equals("")) return;
+    player.sendMessage(message);
+  }
+
+  public void sendMessage(String message, CommandSender sender) {
+    if(message.equals("")) return;
+    sender.sendMessage(message);
   }
 
   public void broadcast(Arena arena, String message) {

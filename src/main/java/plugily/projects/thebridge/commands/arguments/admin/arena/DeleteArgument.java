@@ -22,6 +22,7 @@ package plugily.projects.thebridge.commands.arguments.admin.arena;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import plugily.projects.commonsbox.minecraft.configuration.ConfigUtils;
 import plugily.projects.thebridge.arena.Arena;
 import plugily.projects.thebridge.arena.ArenaManager;
@@ -71,7 +72,7 @@ public class DeleteArgument {
         config.set("instances." + args[1], null);
         ConfigUtils.saveConfig(registry.getPlugin(), config, "arenas");
         ArenaRegistry.unregisterArena(arena);
-        sender.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.Removed-Game-Instance"));
+        chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.Removed-Game-Instance"), (Player) sender);
       }
     });
   }

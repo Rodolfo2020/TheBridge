@@ -20,8 +20,8 @@
 package plugily.projects.thebridge.arena.base;
 
 
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -80,6 +80,10 @@ public class Base {
 
   public String getColor() {
     return color;
+  }
+
+  public ChatColor getStringColor() {
+    return ChatColor.valueOf(color);
   }
 
   public String getMaterialColor() {

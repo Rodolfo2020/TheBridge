@@ -130,7 +130,7 @@ public class ArgumentsRegistry implements CommandExecutor {
               return true;
             }
             if(ArenaRegistry.getArena(args[0]) == null) {
-              sender.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.No-Arena-Like-That"));
+              chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.No-Arena-Like-That"), sender);
               return true;
             }
 
@@ -166,7 +166,7 @@ public class ArgumentsRegistry implements CommandExecutor {
         //sending did you mean help
         List<StringMatcher.Match> matches = StringMatcher.match(args[0], mappedArguments.get(cmd.getName().toLowerCase()).stream().map(CommandArgument::getArgumentName).collect(Collectors.toList()));
         if(!matches.isEmpty()) {
-          sender.sendMessage(chatManager.colorMessage("Commands.Did-You-Mean").replace("%command%", label + " " + matches.get(0).getMatch()));
+          chatManager.sendMessage(chatManager.colorMessage("Commands.Did-You-Mean").replace("%command%", label + " " + matches.get(0).getMatch()), sender);
           return true;
         }
       }
@@ -192,19 +192,19 @@ public class ArgumentsRegistry implements CommandExecutor {
   }
 
   private void sendHelpCommand(CommandSender sender) {
-    sender.sendMessage(chatManager.colorMessage("Commands.Main-Command.Header"));
-    sender.sendMessage(chatManager.colorMessage("Commands.Main-Command.Description"));
+    chatManager.sendMessage(chatManager.colorMessage("Commands.Main-Command.Header"), sender);
+    chatManager.sendMessage(chatManager.colorMessage("Commands.Main-Command.Description"), sender);
     if(sender.hasPermission("thebridge.admin")) {
-      sender.sendMessage(chatManager.colorMessage("Commands.Main-Command.Admin-Bonus-Description"));
+      chatManager.sendMessage(chatManager.colorMessage("Commands.Main-Command.Admin-Bonus-Description"), sender);
     }
-    sender.sendMessage(chatManager.colorMessage("Commands.Main-Command.Footer"));
+    chatManager.sendMessage(chatManager.colorMessage("Commands.Main-Command.Footer"), sender);
   }
 
   private void sendAdminHelpCommand(CommandSender sender) {
-    sender.sendMessage(ChatColor.GREEN + "  " + ChatColor.BOLD + "The Bridge " + ChatColor.GRAY + plugin.getDescription().getVersion());
-    sender.sendMessage(ChatColor.RED + " []" + ChatColor.GRAY + " = optional  " + ChatColor.GOLD + "<>" + ChatColor.GRAY + " = required");
+    chatManager.sendMessage(ChatColor.GREEN + "  " + ChatColor.BOLD + "The Bridge " + ChatColor.GRAY + plugin.getDescription().getVersion(), sender);
+    chatManager.sendMessage(ChatColor.RED + " []" + ChatColor.GRAY + " = optional  " + ChatColor.GOLD + "<>" + ChatColor.GRAY + " = required", sender);
     if(sender instanceof Player) {
-      sender.sendMessage(ChatColor.GRAY + "Hover command to see more, click command to suggest it.");
+      chatManager.sendMessage(ChatColor.GRAY + "Hover command to see more, click command to suggest it.", (Player) sender);
     }
     List<LabelData> data = mappedArguments.get("thebridgeadmin").stream().filter(arg -> arg instanceof LabeledCommandArgument)
       .map(arg -> ((LabeledCommandArgument) arg).getLabelData()).collect(Collectors.toList());

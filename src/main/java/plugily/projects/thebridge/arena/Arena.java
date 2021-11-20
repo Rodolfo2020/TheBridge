@@ -198,7 +198,7 @@ public class Arena extends BukkitRunnable {
             player.updateInventory();
             plugin.getUserManager().addStat(player, StatsStorage.StatisticType.GAMES_PLAYED);
             setTimer(plugin.getConfig().getInt("Time-Manager.Gameplay", 500));
-            player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Messages.Lobby-Messages.Game-Started"));
+            chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Messages.Lobby-Messages.Game-Started"), player);
             // get base with min players
             Base minPlayers = getBases().stream().min(Comparator.comparing(Base::getPlayersSize)).get();
             // add player to min base if he got no base
@@ -265,7 +265,7 @@ public class Arena extends BukkitRunnable {
             String subtitle = chatManager.formatMessage(this, chatManager.colorMessage("In-Game.Messages.Blocked.Subtitle", p).replace("%seconds%", String.valueOf(resetRound)), p);
             VersionUtils.sendTitles(p, title, subtitle, 5, 40, 5);
             if(resetRound == 1) {
-              p.sendMessage(chatManager.colorMessage("In-Game.Messages.Blocked.Run"));
+              chatManager.sendMessage(chatManager.colorMessage("In-Game.Messages.Blocked.Run"), p);
             }
           }
           if(resetRound == 1) {
@@ -342,7 +342,7 @@ public class Arena extends BukkitRunnable {
             user.setSpectator(false);
             user.removeScoreboard(this);
             VersionUtils.setCollidable(user.getPlayer(), true);
-            user.getPlayer().sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.Teleported-To-The-Lobby", user.getPlayer()));
+            if(!chatManager.colorMessage("Commands.Teleported-To-The-Lobby", user.getPlayer()).isEmpty()) chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("Commands.Teleported-To-The-Lobby", user.getPlayer()), user.getPlayer());
             plugin.getUserManager().saveAllStatistic(user);
           }
           plugin.getRewardsHandler().performReward(this, Reward.RewardType.END_GAME);
@@ -526,6 +526,10 @@ public class Arena extends BukkitRunnable {
     return winner;
   }
 
+  public void setWinner(Base baseWinner) {
+    winner = baseWinner;
+  }
+
   public void setBases(List<Base> bases) {
     this.bases = bases;
   }
@@ -665,7 +669,7 @@ public class Arena extends BukkitRunnable {
     resetHits();
     for(Player player : getPlayersLeft()) {
       player.teleport(getBase(player).getPlayerSpawnPoint());
-      player.sendMessage(chatManager.colorMessage("In-Game.Messages.Blocked.Reset"));
+      chatManager.sendMessage(chatManager.colorMessage("In-Game.Messages.Blocked.Reset"), player);
       player.setHealth(VersionUtils.getHealth(player));
       player.getInventory().clear();
       player.setFireTicks(0);

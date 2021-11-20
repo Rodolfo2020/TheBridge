@@ -83,15 +83,15 @@ public class ArenaManager {
     Bukkit.getPluginManager().callEvent(gameJoinAttemptEvent);
 
     if(!arena.isReady()) {
-      player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Arena-Not-Configured"));
+      chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Arena-Not-Configured"), player);
       return;
     }
     if(gameJoinAttemptEvent.isCancelled()) {
-      player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Join-Cancelled-Via-API"));
+      chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Join-Cancelled-Via-API"), player);
       return;
     }
     if(ArenaRegistry.isInArena(player)) {
-      player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Already-Playing"));
+      chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Already-Playing"), player);
       return;
     }
     Base partyBase = null;
@@ -112,11 +112,11 @@ public class ArenaManager {
               }
               leaveAttempt(partyPlayer, ArenaRegistry.getArena(partyPlayer));
             }
-            partyPlayer.sendMessage(chatManager.getPrefix() + chatManager.formatMessage(arena, chatManager.colorMessage("In-Game.Join-As-Party-Member"), partyPlayer));
+            chatManager.sendMessage(chatManager.getPrefix() + chatManager.formatMessage(arena, chatManager.colorMessage("In-Game.Join-As-Party-Member"), partyPlayer), partyPlayer);
             joinAttempt(partyPlayer, arena);
           }
         } else {
-          player.sendMessage(chatManager.getPrefix() + chatManager.formatMessage(arena, chatManager.colorMessage("In-Game.Messages.Lobby-Messages.Not-Enough-Space-For-Party"), player));
+          chatManager.sendMessage(chatManager.getPrefix() + chatManager.formatMessage(arena, chatManager.colorMessage("In-Game.Messages.Lobby-Messages.Not-Enough-Space-For-Party"), player), player);
           return;
         }
       }
@@ -131,8 +131,8 @@ public class ArenaManager {
     if(!plugin.getConfigPreferences().getOption(ConfigPreferences.Option.BUNGEE_ENABLED)
         && !(player.hasPermission(PermissionsManager.getJoinPerm().replace("<arena>", "*"))
         || player.hasPermission(PermissionsManager.getJoinPerm().replace("<arena>", arena.getId())))) {
-      player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Join-No-Permission").replace("%permission%",
-          PermissionsManager.getJoinPerm().replace("<arena>", arena.getId())));
+      chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Join-No-Permission").replace("%permission%",
+          PermissionsManager.getJoinPerm().replace("<arena>", arena.getId())), player);
       return;
     }
     if(arena.getArenaState() == ArenaState.RESTARTING) {
@@ -140,7 +140,7 @@ public class ArenaManager {
     }
     if(arena.getPlayers().size() >= arena.getMaximumPlayers() && arena.getArenaState() == ArenaState.STARTING) {
       if(!player.hasPermission(PermissionsManager.getJoinFullGames())) {
-        player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Full-Game-No-Permission"));
+        chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Full-Game-No-Permission"), player);
         return;
       }
       boolean foundSlot = false;
@@ -149,13 +149,13 @@ public class ArenaManager {
           continue;
         }
         leaveAttempt(loopPlayer, arena);
-        loopPlayer.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Messages.Lobby-Messages.You-Were-Kicked-For-Premium-Slot"));
+        chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.Messages.Lobby-Messages.You-Were-Kicked-For-Premium-Slot"), loopPlayer);
         chatManager.broadcast(arena, chatManager.formatMessage(arena, chatManager.colorMessage("In-Game.Messages.Lobby-Messages.Kicked-For-Premium-Slot"), loopPlayer));
         foundSlot = true;
         break;
       }
       if(!foundSlot) {
-        player.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.No-Slots-For-Premium"));
+        chatManager.sendMessage(chatManager.getPrefix() + chatManager.colorMessage("In-Game.No-Slots-For-Premium"), player);
         return;
       }
     }
@@ -176,7 +176,7 @@ public class ArenaManager {
     player.setFoodLevel(20);
     if((arena.getArenaState() == ArenaState.IN_GAME || arena.getArenaState() == ArenaState.ENDING)) {
       arena.teleportToStartLocation(player);
-      player.sendMessage(chatManager.colorMessage("In-Game.You-Are-Spectator"));
+      chatManager.sendMessage(chatManager.colorMessage("In-Game.You-Are-Spectator"), player);
       player.getInventory().clear();
 
       for(SpecialItem item : plugin.getSpecialItemManager().getSpecialItems()) {
@@ -255,7 +255,7 @@ public class ArenaManager {
 
     //-1 cause we didn't remove player yet
     if(arena.getArenaState() == ArenaState.IN_GAME && !user.isSpectator()) {
-      if(arena.getPlayersLeft().size() - 1 > 1) {
+      if(arena.getPlayersLeft().size() - 1 >= 1) {
         //plugin.getCorpseHandler().spawnCorpse(player, arena);
       } else {
         stopGame(true, arena);
@@ -280,12 +280,6 @@ public class ArenaManager {
     user.removeScoreboard(arena);
     arena.doBarAction(Arena.BarAction.REMOVE, player);
     ArenaUtils.resetPlayerAfterGame(player);
-    if(arena.getArenaState() != ArenaState.WAITING_FOR_PLAYERS && arena.getArenaState() != ArenaState.STARTING &&
-        (arena.getPlayers().size() <= 1 || (arena.getPlayers().size() <= arena.getOption(ArenaOption.SIZE)
-            && arena.getBases().stream().max(Comparator.comparing(Base::getPlayersSize)).get().getAlivePlayersSize() == arena.getPlayers().size()))) {
-      arena.setArenaState(ArenaState.ENDING);
-      arena.setTimer(0);
-    }
 
     arena.teleportToEndLocation(player);
     if(!plugin.getConfigPreferences().getOption(ConfigPreferences.Option.BUNGEE_ENABLED)
@@ -295,6 +289,17 @@ public class ArenaManager {
     plugin.getUserManager().saveAllStatistic(user);
     plugin.getSignManager().updateSigns();
     Debugger.debug("[{0}] Game leave finished for {1} took{2}ms ", arena.getId(), player.getName(), System.currentTimeMillis() - start);
+
+    if(arena.getArenaState() != ArenaState.WAITING_FOR_PLAYERS && arena.getArenaState() != ArenaState.STARTING &&
+      (arena.getPlayers().size() <= 1 || (arena.getPlayers().size() <= arena.getOption(ArenaOption.SIZE)
+        && arena.getBases().stream().max(Comparator.comparing(Base::getPlayersSize)).get().getAlivePlayersSize() == arena.getPlayers().size()))) {
+
+      for(Base base : arena.getBases()) {
+        if(base.getPlayersSize() > 0 && arena.getWinner() == null) arena.setWinner(base);
+      }
+
+      ArenaManager.stopGame(false, arena);
+    }
   }
 
   /**
@@ -316,6 +321,8 @@ public class ArenaManager {
     } else {
       arena.setTimer(10);
     }
+
+    if(!arena.getPlayers().isEmpty()) arena.getPlayers().forEach(arena::teleportToLobby);
 
     List<String> summaryMessages = LanguageManager.getLanguageList("In-Game.Messages.Game-End-Messages.Summary-Message");
     arena.getScoreboardManager().stopAllScoreboards();
