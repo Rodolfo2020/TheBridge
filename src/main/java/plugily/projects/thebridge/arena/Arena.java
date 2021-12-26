@@ -646,6 +646,10 @@ public class Arena extends BukkitRunnable {
   }
 
   public void cleanUpArena() {
+    getMidLocation().getWorld().setTime(0);
+    getMidLocation().getWorld().setThundering(false);
+    getMidLocation().getWorld().setStorm(false);
+
     getBases().forEach(Base::reset);
     resetPlacedBlocks();
     resetHits();

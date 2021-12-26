@@ -130,6 +130,10 @@ public class ArenaEvents implements Listener {
       event.setCancelled(true);
       return;
     }
+    if(arena.getMidLocation().getY() + this.plugin.getConfig().getInt("Upwards-Blocks") < event.getBlockPlaced().getY()) {
+      event.setCancelled(true);
+      return;
+    }
     arena.addPlacedBlock(event.getBlock());
   }
 
@@ -235,7 +239,7 @@ public class ArenaEvents implements Listener {
       return;
     }
     for (Base base : arena.getBases()) {
-      if (base.getPortalCuboid().isIn(player)) {
+      if (base.getPortalCuboid().isIn(player) && !plugin.getUserManager().getUser(player).isSpectator()) {
         if (base.getPoints() >= arena.getOption(ArenaOption.MODE_VALUE)) {
           cooldownPortal.put(player, System.currentTimeMillis());
           chatManager.sendMessage(chatManager.colorMessage("In-Game.Messages.Portal.Out", player), player);
@@ -419,16 +423,16 @@ public class ArenaEvents implements Listener {
     e.getDrops().clear();
     e.setDroppedExp(0);
     // plugin.getCorpseHandler().spawnCorpse(e.getEntity(), arena);
-    e.getEntity().addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 7 * 20, 0));
     Player player = e.getEntity();
     if (arena.getArenaState() == ArenaState.STARTING) {
       return;
     } else if (arena.getArenaState() == ArenaState.ENDING || arena.getArenaState() == ArenaState.RESTARTING) {
-      player.getInventory().clear();
       player.setFlying(false);
       player.setAllowFlight(false);
       return;
     }
+    player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 7 * 20, 0));
+
     if (arena.getBase(player) == null) {
       return;
     }

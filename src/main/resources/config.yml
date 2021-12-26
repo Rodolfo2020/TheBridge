@@ -86,6 +86,9 @@ Disable-Parties: true
 #Disable Food lose
 Disable-Food-Lose: true
 
+#How many blocks upwards the player can place counting from the middle position
+Upwards-Blocks: 10
+
 # Should we fire some cool fireworks at location of every player after the game ends?
 Firework-When-Game-Ends: true
 

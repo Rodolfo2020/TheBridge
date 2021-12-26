@@ -67,6 +67,7 @@ public class BridgeKit extends FreeKit {
       return;
     }
     ArmorHelper.setColouredArmor(ColorUtil.fromChatColor(ChatColor.valueOf(arena.getBase(player).getColor().toUpperCase())), player);
+    player.getInventory().setHelmet(null);
     addBuildBlocks(player, arena);
   }
 
